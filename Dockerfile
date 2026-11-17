@@ -1,6 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.23.1-alpine3.20@sha256:ac67716dd016429be8d4c2c53a248d7bcdf06d34127d3dc451bda6aa5a87bc06 AS builder
-
-RUN apk add --update --no-cache ca-certificates make git curl
+FROM registry.rancher.com/rancher/appco-go:1.27.4 AS builder
 
 ARG TARGETOS
 ARG TARGETARCH
@@ -31,7 +29,7 @@ COPY pkg/ pkg/
 # Build
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build $GO_BUILD_FLAGS -o /usr/local/bin/manager
 
-FROM builder as debug
+FROM builder AS debug
 
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go install github.com/go-delve/delve/cmd/dlv@latest
 
@@ -45,7 +43,7 @@ COPY --from=builder /usr/local/bin/manager /manager
 ENTRYPOINT ["/manager"]
 
 
-FROM gcr.io/distroless/static:latest@sha256:69830f29ed7545c762777507426a412f97dad3d8d32bae3e74ad3fb6160917ea
+FROM registry.suse.com/bci/bci-nano:15.7
 
 COPY --from=builder /usr/local/bin/manager /manager
 
