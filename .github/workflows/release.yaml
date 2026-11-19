@@ -43,7 +43,7 @@ jobs:
       - name: Build and push logging-operator image (dockerhub and prime stg)
         uses: rancher/ecm-distro-tools/actions/publish-image@ee852bce72b895986f953b67d03430130dfae62d # v0.78.2
         with:
-          image: 'logging-operator'
+          image: 'kube-logging-logging-operator'
           tag: ${{ github.ref_name }}
           public-registry: ${{ env.PUBLIC_REGISTRY }}
           public-repo: ${{ env.REPO }}
@@ -73,7 +73,7 @@ jobs:
         if: ${{ steps.semver_check.outputs.HAS_PRERELEASE == 'false' }}
         uses: rancher/ecm-distro-tools/actions/publish-image@ee852bce72b895986f953b67d03430130dfae62d # v0.78.2
         with:
-          image: 'logging-operator'
+          image: 'kube-logging-logging-operator'
           tag: ${{ github.ref_name }}
           push-to-public: false
           push-to-prime: true
