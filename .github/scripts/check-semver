@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+# Usage:
+#   ./check-semver [tag]
+# If no tag is provided, it uses GITHUB_REF_NAME environment variable.
+
+set -euo pipefail
+
+# Input: tag
+tag="${1:-${GITHUB_REF_NAME:-}}"
+
+if [[ -z "$tag" ]]; then
+  echo "Error: No tag provided and GITHUB_REF_NAME is not set." >&2
+  exit 1
+fi
+
+# Strip leading 'v' if present
+if [[ "$tag" == v* ]]; then
+  tag="${tag:1}"
+fi
+
+# Function to detect prerelease:
+# If using _rancher, any hyphen after _rancher marks a prerelease (e.g. _rancher.1-rc.1)
+# Otherwise standard SemVer applies (e.g. 1.2.3-rc.1)
+has_prerelease() {
+  if [[ "$1" =~ _rancher ]]; then
+    [[ "$1" =~ _rancher.*- ]]
+  else
+    [[ "$1" =~ ^[0-9]+\.[0-9]+\.[0-9]+- ]]
+  fi
+}
+
+# Function to detect build metadata (e.g. 1.2.3+build.1)
+has_build_meta() {
+  [[ "$1" =~ \+ ]]
+}
+
+# Output results to stdout
+if has_prerelease "$tag"; then
+  echo "HAS_PRERELEASE=true"
+else
+  echo "HAS_PRERELEASE=false"
+fi
+
+if has_build_meta "$tag"; then
+  echo "HAS_BUILD_META=true"
+else
+  echo "HAS_BUILD_META=false"
+fi
